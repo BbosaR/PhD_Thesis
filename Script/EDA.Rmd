@@ -1,0 +1,241 @@
+---
+title: "EDA"
+output:
+  word_document:
+    toc: yes
+    fig_caption: yes
+    keep_md: yes
+  html_document: default
+  pdf_document:
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Load the Required Packages
+
+```{r eval=FALSE}
+install.packages("pastecs")  
+install.packages("fBasics")
+install.packages("timeDate")
+install.packages("timeSeries")
+install.packages("stats")
+install.packages("vars")
+install.packages("ggfortify")
+tinytex::install_tinytex()
+install.packages("tibble")
+```
+## Load library
+
+```{r}
+library(pastecs)
+library(timeDate)
+library(timeSeries)
+library(fBasics)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(vars)
+library(ggfortify)
+library(GGally)
+library(ggpubr)
+library(tinytex)
+library(tibble)
+```
+## Read the data
+
+```{r}
+bud <- read.csv("~/PhD_Thesis/Data/budget_information.csv", header = TRUE)
+bud <- as_tibble(bud)
+```
+
+## Inspect the data
+
+```{r}
+names(bud) # To know the variable names
+str(bud)  # To know the class of the variables
+```
+
+## Computation of the annual budget performance
+
+Annual Budget performance is Given as
+
+$$bud\_perf=\frac{TEa}{TEe}*100\%$$
+
+Where:
+`bud_perf = Annual Budget Performance`
+`TEa = Actual Total Expenditure`
+`TEe = Estimated Total Expenditure`
+
+```{r}
+bud <- bud %>% 
+  mutate(bud_perf=(TEa/TEe)*100)
+
+names(bud)
+```
+
+
+## Transform the dataset into timeseries
+
+```{r}
+bud <- bud %>% 
+  dplyr::select(-period) %>% 
+  ts(start = 1999, end = 2020, frequency = 1)
+```
+
+
+## Summary Statistics
+```{r}
+pastecs::stat.desc(bud)
+```
+
+
+```{r}
+fBasics::basicStats(bud)
+```
+
+## PLots
+# Revenue variables with budget performance
+
+We overlayed budget performace with other revenue variables to identify any visual relationship
+Where:-
+`IGRa` - Actual Internally Generated Revenue
+`SAa`  - Actual Statutory Allocation
+`VATa` - Actual VAT
+`ORa`  - Actual Other Revenue
+`CRA`  - Actual Capital Receipts
+```{r}
+bud_rev <- bud[,c(12,14,16,18,20,29)]
+bud_rev %>% 
+ggplot2::autoplot()
+```
+
+
+# Expenditure variables with budget performance
+
+We overlayed budget performace with other expenditure variables to identify any visual relationship
+Where:-
+`PCa`    - Actual Personnel Cost
+`OCa`    - Actual Overhead Cost
+`CRFCa`  - Actual Consolidated Revenue Fund Charges
+`SFa`    - Actual Stablisation Fund
+`CAPEXa` - Actual Capital Expenditure
+```{r}
+bud_exp <- bud[,c(2,4,6,8,10,29)]
+bud_exp %>% 
+ggplot2::autoplot()
+```
+
+
+## Individual Graphs
+# Revenue
+```{r}
+g_IGRa <- bud_rev[,1] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Internally Generated Revenue")
+
+g_SAa <- bud_rev[,2] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Statutory Allocation")
+
+g_VATa <-  bud_rev[,3] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("VAT")
+
+
+g_ORa <- bud_rev[,4] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Other Revenue")
+
+g_CRa <- bud_rev[,5] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Capital Receipts")
+
+g_bud_perf <- bud_rev[,6] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Budget Performance")
+
+ggarrange(g_IGRa, g_SAa, 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+
+ggarrange(g_VATa, g_ORa, 
+          labels = c("C", "D"),
+          ncol = 2, nrow = 1)
+
+ggarrange(g_CRa, g_bud_perf, 
+          labels = c("E", "F"),
+          ncol = 2, nrow = 1)
+
+```
+
+# Expenditure
+
+```{r}
+g_PCa <- bud_exp[,1] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Capital Expenditure")
+
+g_OCa <- bud_exp[,2] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Overhead Cost")
+
+g_CRFCa <-  bud_exp[,3] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Consolidated Renue Fund Charges")
+
+
+g_SFa <- bud_exp[,4] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Stablisation Fund")
+
+g_CAPEXa <- bud_exp[,5] %>% 
+       ggplot2::autoplot() +
+         theme(text = element_text(size = 12, face = "bold"))+
+         xlab("Period") + 
+         ylab("Actual Capital Expenditure")
+
+
+ggarrange(g_PCa, g_OCa, 
+          labels = c("G", "H"),
+          ncol = 2, nrow = 1)
+
+ggarrange(g_CRFCa, g_SFa, 
+          labels = c("I", "J"),
+          ncol = 2, nrow = 1)
+
+ggarrange(g_CAPEXa, 
+          labels = c("K"),
+          ncol = 2, nrow = 1)
+
+```
+
+
+## Correlation Matrix
+
+```{r}
+bud_corr <-  bud[,c(2,4,6,8,10,12,14,16,18,20,29)]
+bud_corr %>% 
+  as.data.frame() %>% 
+  ggpairs()
+```
