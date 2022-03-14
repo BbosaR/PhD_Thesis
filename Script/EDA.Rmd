@@ -9,7 +9,7 @@ output:
   pdf_document:
     toc: yes
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ## Load the Required Packages
@@ -81,6 +81,8 @@ names(bud)
 bud <- bud %>% 
   dplyr::select(-period) %>% 
   ts(start = 1999, end = 2020, frequency = 1)
+
+bud[,c(1:28)] <- round((bud[,c(1:28)])/1e9,4) # Round values to Billion Naira
 ```
 
 
@@ -134,38 +136,38 @@ g_IGRa <- bud_rev[,1] %>%
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Internally Generated Revenue")
+         ylab("Internally Generated Revenue (N Billion)")
 
 g_SAa <- bud_rev[,2] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Statutory Allocation")
+         ylab("Statutory Allocation (N Billion)")
 
 g_VATa <-  bud_rev[,3] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("VAT")
+         ylab("VAT (N Billion)")
 
 
 g_ORa <- bud_rev[,4] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Other Revenue")
+         ylab("Other Revenue (N Billion)")
 
 g_CRa <- bud_rev[,5] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Actual Capital Receipts")
+         ylab("Actual Capital Receipts (N Billion)")
 
 g_bud_perf <- bud_rev[,6] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Budget Performance")
+         ylab("Budget Performance (%, Percentage)")
 
 ggarrange(g_IGRa, g_SAa, 
           labels = c("A", "B"),
@@ -188,44 +190,33 @@ g_PCa <- bud_exp[,1] %>%
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Actual Capital Expenditure")
+         ylab("Actual Capital Expenditure (N Billion)")
 
 g_OCa <- bud_exp[,2] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Actual Overhead Cost")
+         ylab("Actual Overhead Cost (N Billion)")
 
 g_CRFCa <-  bud_exp[,3] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Actual Consolidated Renue Fund Charges")
-
-
-g_SFa <- bud_exp[,4] %>% 
-       ggplot2::autoplot() +
-         theme(text = element_text(size = 12, face = "bold"))+
-         xlab("Period") + 
-         ylab("Actual Stablisation Fund")
+         ylab("Actual Consolidated Renue Fund Charges (N Billion)")
 
 g_CAPEXa <- bud_exp[,5] %>% 
        ggplot2::autoplot() +
          theme(text = element_text(size = 12, face = "bold"))+
          xlab("Period") + 
-         ylab("Actual Capital Expenditure")
+         ylab("Actual Capital Expenditure (N Billion)")
 
 
 ggarrange(g_PCa, g_OCa, 
           labels = c("G", "H"),
           ncol = 2, nrow = 1)
 
-ggarrange(g_CRFCa, g_SFa, 
+ggarrange(g_CRFCa, g_CAPEXa, 
           labels = c("I", "J"),
-          ncol = 2, nrow = 1)
-
-ggarrange(g_CAPEXa, 
-          labels = c("K"),
           ncol = 2, nrow = 1)
 
 ```
@@ -234,8 +225,22 @@ ggarrange(g_CAPEXa,
 ## Correlation Matrix
 
 ```{r}
-bud_corr <-  bud[,c(2,4,6,8,10,12,14,16,18,20,29)]
+bud_corr <-  bud[,c(2,4,6,10,12,14,16,18,20,29)]
 bud_corr %>% 
   as.data.frame() %>% 
   ggpairs()
 ```
+
+
+## Box plot
+
+```{r}
+boxplot(bud_corr)
+```
+
+## Timeseries Model
+
+```{r}
+
+```
+
