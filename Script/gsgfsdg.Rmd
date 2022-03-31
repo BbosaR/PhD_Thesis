@@ -1,4 +1,8 @@
 ---
+title: "Untitled"
+output: html_document
+---
+---
 title: "EDA"
 output:
   word_document:
@@ -15,17 +19,8 @@ editor_options:
 ## Load the Required Packages
 
 ```{r eval=FALSE}
-install.packages("fBasics")
-install.packages("timeDate")
-install.packages("timeSeries")
-install.packages("stats")
-install.packages("vars")
-install.packages("ggfortify")
-tinytex::install_tinytex()
-install.packages("tibble")
-install.packages(c("tsibble","tibble","tsibbledata"))
-install.packages("rlang")
-install.packages("feasts")
+install.packages("dplyr")
+
 ```
 ## Load library
 
@@ -37,24 +32,27 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(vars)
-library(ggfortify)
 library(GGally)
 library(ggpubr)
 library(tinytex)
 library(tibble)
-library(stats)
 library(tsibble)
 library(tsibbledata)
-library(tibble)
-library(rlang)
+library(stats)
 library(feasts)
 library(fabletools)
-sessionInfo()
+library(fpp3)
+library(feasts)
+library(fable)
+library(fabletools)
+
 ```
 ## Read the data
 
 ```{r}
 bud <- read.csv("~/PhD_Thesis/Data/budget_information.csv", header = TRUE)
+
+
 ```
 
 ## Inspect the data
@@ -80,33 +78,28 @@ bud <- bud %>%
   mutate(bud_perf=(TEa/TEe)*100)
 
 names(bud)
-
-bud
 ```
 
 
 ## Transform the dataset into timeseries
 
 ```{r}
-
-bud_series <- bud %>% 
-   as_tsibble(index = period)
-
-names(bud_series)
+bud_seri <- bud %>% 
+dplyr::select(-period) %>%
+ts(start = 1999, end = 2020, frequency = 1)
 
 
-bud_series[,c(2:29)] <- round((bud_series[,c(2:29)])/1e9,4) # Round values to Billion Naira
+bud_seri[,c(2:29)] <- round((bud_seri[,c(2:29)])/1e9,4) # Round values to Billion Naira
 
-names(bud_series)
 
-bud_series
+class(bud_series)
 ```
 
 
 ## Summary Statistics
 
 ```{r}
-fBasics::basicStats(bud_series[,-1])
+fBasics::basicStats(bud_series)
 ```
 
 ## PLots
@@ -118,20 +111,11 @@ Where:-
 `SAa`  - Actual Statutory Allocation
 `VATa` - Actual VAT
 `ORa`  - Actual Other Revenue
-`CRa`  - Actual Capital Receipts
+`CRA`  - Actual Capital Receipts
 ```{r}
-bud_rev <- bud_series %>% 
-  select("IGRa","SAa","VATa","ORa","CRa","bud_perf")
-
-autoplot(bud_rev)
-
 bud_rev <- bud_series[,c(12,14,16,18,20,29)]
-bud_rev
 bud_rev %>% 
-  select(-"period") %>%
-  ggfortify::autoplot()
-
-autop
+ggplot2::autoplot()
 ```
 
 
